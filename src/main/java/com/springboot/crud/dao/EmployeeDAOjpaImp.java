@@ -2,7 +2,6 @@ package com.springboot.crud.dao;
 
 import java.util.List;
 
-import org.hibernate.query.TypedParameterValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -28,10 +27,10 @@ public class EmployeeDAOjpaImp implements EmployeeDAO {
         TypedQuery<Employee> theQuery = entityManager.createQuery("from Employee", Employee.class);
 
         //exec
-        List<Employee> employees = theQuery.getResultList();
+        List<Employee> employee = theQuery.getResultList();
         
         //result
-        return employees;
+        return employee;
     }
 
 }
