@@ -6,10 +6,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springboot.crud.entity.Employee;
 import com.springboot.crud.service.EmployeeService;
 
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +31,11 @@ public class EmployeeRestController {
 
     private EmployeeService employeeService;
     
+    private JsonMapper jsonMapper;
 
-    public EmployeeRestController(EmployeeService theEmployeeService) {
+    public EmployeeRestController(EmployeeService theEmployeeService, JsonMapper theJsonMapper) {
         employeeService = theEmployeeService;
+        jsonMapper = theJsonMapper;
     }
 
     @GetMapping("/employees")
@@ -73,4 +79,23 @@ public class EmployeeRestController {
         employeeService.deleteById(id);
         return tempEmployee;
     }
+
+    @PatchMapping("/employees/{id}")
+    public Employee patchEmployee(@PathVariable int id,
+         @RequestBody Map<String, Object> patchPayload) {
+        Employee tempEmployee = employeeService.findById(id);
+        if (tempEmployee == null) {
+            throw new RuntimeException("Employee id not found - " + id);
+        }
+
+        if(patchPayload.containsKey("id")) {
+            throw new RuntimeException("Employee id not allowed in request body - " + id);
+        }
+
+        Employee patchedEmployee = jsonMapper.updateValue(tempEmployee, patchPayload);
+
+        Employee dbEmployee = employeeService.save(patchedEmployee);
+        return dbEmployee;
+    }
+
 }
